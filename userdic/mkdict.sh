@@ -31,9 +31,11 @@ curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/
 echo $@
 
 USERDIC=user_dic-ut-sudachidict
-ruby user_dict.rb -f src/core_lex.csv -f src/notcore_lex.csv > ${USERDIC}
+ruby user_dict.rb -S -E -f src/core_lex.csv > ${USERDIC}.tmp
+ruby user_dict.rb -S -E -f src/notcore_lex.csv >> ${USERDIC}.tmp
+ruby uniqword.rb ${USERDIC}.tmp > ${USERDIC}
 split -d -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
-rm $USERDIC
+rm $USERDIC $USERDIC.tmp
 
 [[ -e ../${USERDIC}.tar.xz ]] && rm ../${USERDIC}*.xz
 
