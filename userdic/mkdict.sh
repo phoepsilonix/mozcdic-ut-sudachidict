@@ -17,6 +17,7 @@ mkdir -p src
 #print http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/20230110/core_lex.zip
 #print http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$date/core_lex.zip
 
+curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$latest_date/small_lex.zip" -o upstream/small_lex.zip
 curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$latest_date/core_lex.zip" -o upstream/core_lex.zip
 curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$latest_date/notcore_lex.zip" -o upstream/notcore_lex.zip
 
@@ -31,8 +32,7 @@ curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/
 echo $@
 
 USERDIC=user_dic-ut-sudachidict
-ruby user_dict.rb -S -E -f src/core_lex.csv > ${USERDIC}.tmp
-ruby user_dict.rb -S -E -f src/notcore_lex.csv >> ${USERDIC}.tmp
+ruby user_dict.rb -S -E -f src/small_lex.csv -f src/core_lex.csv -f src/notcore_lex.csv > ${USERDIC}.tmp
 ruby uniqword.rb ${USERDIC}.tmp > ${USERDIC}
 split -d -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
 rm $USERDIC $USERDIC.tmp
