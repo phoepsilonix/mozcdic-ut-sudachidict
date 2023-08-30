@@ -30,7 +30,6 @@ curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/
 ) > /dev/null
 
 echo $@
-
 USERDIC=user_dic-ut-sudachidict
 ruby user_dict.rb -E -f src/small_lex.csv -f src/core_lex.csv -f src/notcore_lex.csv > ${USERDIC}.tmp
 ruby uniqword.rb ${USERDIC}.tmp > ${USERDIC}

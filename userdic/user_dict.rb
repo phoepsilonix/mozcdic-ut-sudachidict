@@ -125,9 +125,12 @@ $opts[:filename].each do |source_file|
       #next if kana =~ /[^\p{hiragana}\p{katakana}ー]/
 
       yomi = NKF.nkf("--hiragana -w -W", kana).tr("ゐゑ", "いえ")
-
       # 見出し (解析結果表示用)を表記とみなす
       base = head_anal
+
+      # Unicode エスケープ
+      yomi.gsub!(/\\u([\da-fA-F]{4})/) { [$1].pack('H*').unpack('n*').pack('U*') }
+      base.gsub!(/\\u([\da-fA-F]{4})/) { [$1].pack('H*').unpack('n*').pack('U*') }
 
       # head_trie と conv_to が casecmp false な例:
       # ["co・cp共済", "4785", "4785", "15000", "CO･CP共済", "名詞", "固有名詞", "一般", "*", "*", "*", "コープキョウサイ", "コープ共済", "*", "A", "*", "*", "*", "021722"]
