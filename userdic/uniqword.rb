@@ -8,7 +8,7 @@
 REMEMBER = {}
 
 ARGF.each do |line|
-  yomi, id1, id2, cost, base = line.chomp.split("\t")
+  yomi, base , id1, comment = line.chomp.split("\t")
   expr = [yomi, id1, base].join(",")
   if REMEMBER[expr]
     STDERR.puts("#{expr} is duplicated")
