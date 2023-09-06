@@ -36,10 +36,10 @@ ruby uniqword.rb ${USERDIC}.tmp > ${USERDIC}
 split -d -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
 rm $USERDIC $USERDIC.tmp
 
-[[ -e ../${USERDIC}.tar.xz ]] && rm ../${USERDIC}*.xz
+[[ -e ../${USERDIC}.tar.xz ]] && rm ../${USERDIC}.tar.xz
 
 tar cf ../${USERDIC}.tar ${USERDIC}-*.txt
-xz -9 ../${USERDIC}.tar
+xz -9 -e ../${USERDIC}.tar
 
 rm $USERDIC-*.txt
 rm -rf src upstream
