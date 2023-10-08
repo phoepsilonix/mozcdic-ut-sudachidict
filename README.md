@@ -1,6 +1,6 @@
 ---
 title: Mozc UT SudachiDict Dictionary
-date: 2023-01-16
+date: 2023-09-27
 ---
 
 ## Overview
@@ -38,3 +38,25 @@ sh make.sh
 ```
 
 [HOME](http://linuxplayers.g1.xrea.com/mozc-ut.html)
+
+
+## Appendix.
+
+ユーザー辞書形式のファイルについて。  
+user_dic-ut-sudachidict.tar.xz: [Apache License, Version 2.0](https://github.com/WorksApplications/SudachiDict/blob/develop/LEGAL)  
+MOZCの辞書ツールでインポート可能な形式に変換しています。  
+品詞分類の仕方は、UT Dictionaryと多少異なると思います。(userdicディレクトリのスクリプトをご参照ください。)  
+```
+tar xf user_dic-ut-sudachidict.tar.xz
+```
+```
+user_dic-ut-sudachidict-00.txt
+user_dic-ut-sudachidict-01.txt
+user_dic-ut-sudachidict-02.txt
+```
+
+更新方法
+```
+cd userdic
+./mkdict.sh
+```
