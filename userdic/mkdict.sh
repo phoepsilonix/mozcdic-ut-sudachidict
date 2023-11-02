@@ -38,7 +38,7 @@ rm $USERDIC $USERDIC.tmp
 
 [[ -e ../${USERDIC}.tar.xz ]] && rm ../${USERDIC}.tar.xz
 
-tar cf ../${USERDIC}.tar ${USERDIC}-*.txt
+tar cf ../${USERDIC}.tar ${USERDIC}-*.txt ../LICENSE.user_dic
 xz -9 -e ../${USERDIC}.tar
 
 rm $USERDIC-*.txt
