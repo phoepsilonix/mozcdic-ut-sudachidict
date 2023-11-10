@@ -13,6 +13,9 @@ date = date.split("'")[-1]
 
 `wget -N http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/#{date}/core_lex.zip`
 `wget -N http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/#{date}/notcore_lex.zip`
+`mkdir -p ../userdic/upstream`
+`ln core_lex.zip ../userdic/upstream/`
+`ln notcore_lex.zip ../userdic/upstream/`
 
 `rm -f {core_lex.csv,notcore_lex.csv}`
 `unzip core_lex.zip`
