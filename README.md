@@ -1,6 +1,6 @@
 ---
 title: Mozc UT SudachiDict Dictionary
-date: 2023-09-27
+date: 2024-01-09
 ---
 
 ## Overview
