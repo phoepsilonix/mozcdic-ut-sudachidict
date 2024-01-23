@@ -31,16 +31,18 @@ USERDIC=user_dic-ut-sudachidict
 source <(cargo +nightly -Z unstable-options rustc --print cfg|grep -E "target_(arch|vendor|os|env)")
 TARGET="${target_arch}-${target_vendor}-${target_os}-${target_env}"
 cargo build --release --target $TARGET
+
+PROG=$(find . -name dict-to-mozc)
 cat src/small_lex.csv src/core_lex.csv src/notcore_lex.csv > all.csv
 
 # ut dic
 
-./target/$TARGET/release/dict-to-mozc -i ../id.def -f all.csv -s > ./$SYSTEMDIC.ymp
+$PROG -i ../id.def -f all.csv -s > ./$SYSTEMDIC.ymp
 awk -f ../dup.awk ./$SYSTEMDIC.tmp > ./$SYSTEMDIC.txt
 rm ./$SYSTEMDIC.tmp
 
 # userdic
-./target/$TARGET/release/dict-to-mozc -i ../id.def -f all.csv -s -U ../user_dic_id.def > ./$USERDIC.tmp
+$PROG -i ../id.def -f all.csv -s -U ../user_dic_id.def > ./$USERDIC.tmp
 awk -f ../dup.awk ./$USERDIC.tmp > ./$USERDIC
 split --numeric-suffixes=1 -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
 rm $USERDIC $USERDIC.tmp
