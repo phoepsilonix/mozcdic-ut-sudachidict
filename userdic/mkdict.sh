@@ -26,17 +26,32 @@ mkdir -p src
 ) > /dev/null
 
 echo $@
+SYSTEMDIC=mozcdic-ut-sudachidict
 USERDIC=user_dic-ut-sudachidict
-ruby user_dict.rb -E -f src/small_lex.csv -f src/core_lex.csv -f src/notcore_lex.csv > ${USERDIC}.tmp
-ruby uniqword.rb ${USERDIC}.tmp > ${USERDIC}
+source <(cargo +nightly -Z unstable-options rustc --print cfg|grep -E "target_(arch|vendor|os|env)")
+TARGET="${target_arch}-${target_vendor}-${target_os}-${target_env}"
+cargo build --release --target $TARGET
+cat src/small_lex.csv src/core_lex.csv src/notcore_lex.csv > all.csv
+
+# ut dic
+
+./target/$TARGET/release/dict-to-mozc -i ../id.def -f all.csv -s > ./$SYSTEMDIC.ymp
+awk -f ../dup.awk ./$SYSTEMDIC.tmp > ./$SYSTEMDIC.txt
+rm ./$SYSTEMDIC.tmp
+
+# userdic
+./target/$TARGET/release/dict-to-mozc -i ../id.def -f all.csv -s -U ../user_dic_id.def > ./$USERDIC.tmp
+awk -f ../dup.awk ./$USERDIC.tmp > ./$USERDIC
 split --numeric-suffixes=1 -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
 rm $USERDIC $USERDIC.tmp
 
 mkdir -p ../release
 [[ -e ../release/${USERDIC}.tar.xz ]] && rm ../release/${USERDIC}.tar.xz
 
+tar cf ../release/${SYSTEMDIC}.tar ${SYSTEMDIC}.txt ../LICENSE
+xz -9 -e ../release/${SYSTEMDIC}.tar
 tar cf ../release/${USERDIC}.tar ${USERDIC}-*.txt ../LICENSE.user_dic
 xz -9 -e ../release/${USERDIC}.tar
 
-rm $USERDIC-*.txt
+rm $USERDIC-*.txt $SYSTEMDIC.txt
 rm -rf src upstream

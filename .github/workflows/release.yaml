@@ -9,27 +9,46 @@ jobs:
   release:
 
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        ruby-version: ['3.3.0']
-
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_CACHE_SIZE: 1G
+      SCCACHE_DIR: /home/runner/.cache/sccache
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Ruby ${{ matrix.ruby-version }}
-        uses: ruby/setup-ruby@360dc864d5da99d54fcb8e9148c14a84b90d3e88
         with:
-          ruby-version: ${{ matrix.ruby-version }}
-      - name: gem install
+          lfs: true
+          submodules: 'recursive'
+      - name: install build tools (Linux)
         run: |
-          gem install parallel
-          export RUBY_YJIT_ENABLE=1
-          export RUBYOPT=--yjit
-          echo $(ruby -e 'p RubyVM::YJIT.enabled?') 1>&2
+          #pacman -Sy sudo rustup clang llvm lld make git --noconfirm
+          sudo apt-get install build-essential make git clang
+          rm -f ~/.cargo/config*
+      - name: Install sccache
+        env:
+          LINK: https://github.com/mozilla/sccache/releases/download
+          SCCACHE_VERSION: 0.7.5
+        run: |
+          SCCACHE_FILE=sccache-v$SCCACHE_VERSION-x86_64-unknown-linux-musl
+          mkdir -p $HOME/.local/bin
+          curl -L "$LINK/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+          chmod +x $HOME/.local/bin/sccache
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install mold linker
+        uses: rui314/setup-mold@staging
+        with:
+          mold-version: 2.4.0
+      - name: Update toolchain
+        run: |
+          cp config.toml ~/.cargo/
+          rustup update stable
+          rustup default stable
+          rustup component add rust-src
+          rustup target add x86_64-unknown-linux-musl
       - name: Build
         run: |
           mkdir -p release
-          (cd src; bash make.sh)
           (cd userdic; bash mkdict.sh)
           ls release 1>&2
       - name: Create release
