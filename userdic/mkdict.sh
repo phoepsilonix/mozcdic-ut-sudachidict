@@ -30,9 +30,10 @@ SYSTEMDIC=mozcdic-ut-sudachidict
 USERDIC=user_dic-ut-sudachidict
 source <(cargo +nightly -Z unstable-options rustc --print cfg|grep -E "target_(arch|vendor|os|env)")
 TARGET="${target_arch}-${target_vendor}-${target_os}-${target_env}"
-cargo build --release --target $TARGET
-
+cargo +stable build --release --target $TARGET
 PROG=$(find . -name dict-to-mozc)
+echo "PROG=" $PROG
+
 cat src/small_lex.csv src/core_lex.csv src/notcore_lex.csv > all.csv
 
 # ut dic
