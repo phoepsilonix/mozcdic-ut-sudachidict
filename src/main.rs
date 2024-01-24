@@ -7,12 +7,22 @@ use kanaria::string::ConvertType;
 use lazy_regex::*;
 use std::env;
 
-
 fn id_expr(clsexpr: &String, id_def: &mut HashMap::<String, i32>, class_map: &mut HashMap::<String, i32>) -> i32 {
   let expr = clsexpr.split(',').collect::<Vec<_>>();
   let mut r=-1;
   let mut q=0;
   let mut p;
+  if id_def.contains_key(clsexpr) {
+      let a = id_def.get(clsexpr);
+      match a {
+          Some(a) => r = *a,
+          None => ()
+      }
+      if r != -1 {
+          class_map.insert(clsexpr.to_string(), r);
+          return r;
+      } ;
+  } else {
   for h in &mut *id_def {
     p=0;
     for x in expr.iter() {
@@ -20,18 +30,22 @@ fn id_expr(clsexpr: &String, id_def: &mut HashMap::<String, i32>, class_map: &mu
       let i = h.0.split(",").collect::<Vec<_>>();
       for y in i {
         if y == "*" || y == "自立" || y == "非自立"  || y == "一般"  { continue };
-        if *x == y { p = p + 1 };
+        if *x == y {
+            p = p + 1;
+            continue;
+        };
       };
     };
     if q < p {
-      q = p;
-      r = *h.1;
+        q = p;
+        r = *h.1;
     }
   };
   if r == -1 { r = 1847 };
   if ! id_def.contains_key(clsexpr) {
-      id_def.insert(clsexpr.to_string(), r);
+    id_def.insert(clsexpr.to_string(), r);
   };
+  }
   class_map.insert(clsexpr.to_string(), r);
   return r;
 }
@@ -181,7 +195,7 @@ fn utdict_read_csv(path: &Path, id_def: &mut HashMap::<String, i32>, user_id_def
       .delimiter(b"\t"[0])
       .from_path(path);
   //let mut list = Vec::new();
-  let kana_check = Regex::new(r"[ぁ-んゔ]").unwrap();
+  let kana_check = Regex::new(r"[ぁ-ゖ]").unwrap();
   let kigou_check = Regex::new(r"^[a-zA-Z ]+$").unwrap();
   for result in reader?.records() {
     match result {
