@@ -37,12 +37,12 @@ echo "PROG=" $PROG
 cat src/small_lex.csv src/core_lex.csv src/notcore_lex.csv > all.csv
 
 # ut dic
-$PROG -i ./id.def -f ./all.csv -s > ./$SYSTEMDIC.tmp
+$PROG -i ./id.def -f ./all.csv -s > ./$SYSTEMDIC.tmp 2>error.log
 awk -f ../dup.awk ./$SYSTEMDIC.tmp > ./$SYSTEMDIC.txt
 rm ./$SYSTEMDIC.tmp
 
 # userdic
-$PROG -i ./id.def -f all.csv -s -U ./user_dic_id.def > ./$USERDIC.tmp
+$PROG -i ./id.def -f all.csv -s -U ./user_dic_id.def > ./$USERDIC.tmp 2>error2.log
 awk -f ../dup.awk ./$USERDIC.tmp > ./$USERDIC
 split --numeric-suffixes=1 -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
 rm $USERDIC $USERDIC.tmp
