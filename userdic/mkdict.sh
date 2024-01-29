@@ -43,7 +43,7 @@ rm ./$SYSTEMDIC.tmp
 
 # userdic
 $PROG -i ./id.def -f all.csv -s -U ./user_dic_id.def > ./$USERDIC.tmp 2>error2.log
-awk -f ../dup.awk ./$USERDIC.tmp > ./$USERDIC
+awk -f ../dup_u.awk ./$USERDIC.tmp > ./$USERDIC
 split --numeric-suffixes=1 -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
 rm $USERDIC $USERDIC.tmp
 
