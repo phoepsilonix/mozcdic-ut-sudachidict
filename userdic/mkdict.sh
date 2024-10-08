@@ -10,9 +10,6 @@ mkdir -p upstream
 if [[ -e src ]]; then rm -rf src; fi
 mkdir -p src
 
-#print http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/20230110/core_lex.zip
-#print http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$date/core_lex.zip
-
 [ -n upstream/small_lex.zip ] && curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$latest_date/small_lex.zip" -o upstream/small_lex.zip
 [ -n upstream/core_lex.zip ] && curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$latest_date/core_lex.zip" -o upstream/core_lex.zip
 [ -n upstream/notcore_lex.zip ] && curl -s "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict-raw/$latest_date/notcore_lex.zip" -o upstream/notcore_lex.zip
@@ -28,25 +25,20 @@ mkdir -p src
 echo $@
 SYSTEMDIC=mozcdic-ut-sudachidict
 USERDIC=user_dic-ut-sudachidict
-rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n) | grep musl && TARGET=$(rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n)|grep musl|head -n1) || TARGET=$(rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n)|grep -v musl|head -n1)
+rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n) | grep -v musl && TARGET=$(rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n)|grep -v musl|head -n1) || TARGET=$(rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n)|grep musl|head -n1)
 #TARGET="${target_arch}-${target_vendor}-${target_os}-${target_env}"
 unset RUSTC
-cargo +stable build --release --target $TARGET
+cargo build --release --target $TARGET
 PROG=$(find .. -name dict-to-mozc)
 echo "PROG=" $PROG
 
 cat src/small_lex.csv src/core_lex.csv src/notcore_lex.csv > all.csv
-
+wget -nc https://github.com/google/mozc/raw/refs/heads/master/src/data/dictionary_oss/id.def
 # ut dic
-$PROG -i ./id.def -f ./all.csv -s > ./$SYSTEMDIC.tmp 2>error.log
-awk -f ../dup.awk ./$SYSTEMDIC.tmp > ./$SYSTEMDIC.txt
-rm ./$SYSTEMDIC.tmp
-
-# userdic
-$PROG -i ./id.def -f all.csv -s -U ./user_dic_id.def > ./$USERDIC.tmp 2>error2.log
-awk -f ../dup_u.awk ./$USERDIC.tmp > ./$USERDIC
+$PROG -i ./id.def -f ./all.csv -s > ./$SYSTEMDIC.txt 2>error.log
+$PROG -i ./id.def -f ./all.csv -s -U > ./$USERDIC 2>error2.log
+ls -la $SYSTEMDIC* $USERDIC*
 split --numeric-suffixes=1 -l 1000000 --additional-suffix=.txt $USERDIC $USERDIC-
-rm $USERDIC $USERDIC.tmp
 
 mkdir -p ../release
 [[ -e ../release/${USERDIC}.tar.xz ]] && rm ../release/${USERDIC}.tar.xz
@@ -56,5 +48,5 @@ xz -9 -e ../release/${SYSTEMDIC}.tar
 tar cf ../release/${USERDIC}.tar ${USERDIC}-*.txt ../LICENSE.user_dic
 xz -9 -e ../release/${USERDIC}.tar
 
-rm $USERDIC-*.txt $SYSTEMDIC.txt
+rm $USERDIC $USERDIC-*.txt $SYSTEMDIC.txt
 rm -rf src upstream
